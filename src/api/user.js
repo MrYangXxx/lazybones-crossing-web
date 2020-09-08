@@ -15,22 +15,6 @@ export function getInfo() {
   })
 }
 
-export function getUsers(data) {
-  return request({
-    url: '/user/all',
-    method: 'post',
-    data
-  })
-}
-
-export function addUser(data) {
-  return request({
-    url: '/user',
-    method: 'post',
-    data
-  })
-}
-
 export function updateUser(id, data) {
   return request({
     url: `/user/id/${id}`,
@@ -46,17 +30,9 @@ export function deleteUser(id) {
   })
 }
 
-export function setRole(data) {
+export function registry(data) {
   return request({
-    url: '/user/setRole',
-    method: 'post',
-    data
-  })
-}
-
-export function getRole(data) {
-  return request({
-    url: '/user/role',
+    url: `/user/registry`,
     method: 'post',
     data
   })
