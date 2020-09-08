@@ -36,6 +36,11 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true
   },
+  {
+    path: '/registry',
+    component: () => import('@/views/registry/index'),
+    hidden: true
+  },
 
   {
     path: '/404',
@@ -54,7 +59,16 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
-
+  {
+    path: '/publish',
+    component: Layout,
+    children: [{
+      path: '/publish',
+      component: () => import('@/views/publish/index'),
+      name: 'publish',
+      meta: { title: '发布', icon: 'dashboard' }
+    }]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
