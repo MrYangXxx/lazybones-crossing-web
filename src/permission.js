@@ -9,7 +9,7 @@ import { constantRoutes } from './router'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login'] // no redirect whitelist
+const whiteList = ['/login', '/registry'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
   // start progress bar
@@ -33,19 +33,8 @@ router.beforeEach(async(to, from, next) => {
       } else {
         try {
           // get user info
-          const res = await store.dispatch('user/getInfo')
-
-          const [...routes] = constantRoutes
-
-          if (res.role === 'admin' || res.role.includes('admin')) {
-            next()
-          } else {
-            permissionFilter(routes, res.hrefs)
-
-            router.addRoutes(routes)
-
-            next({ ...to, replace: true })
-          }
+          await store.dispatch('user/getInfo')
+          next()
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
