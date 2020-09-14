@@ -42,8 +42,10 @@ export default {
       }
       return path
     },
+    // logo栏改造成个人信息栏
     showLogo() {
-      return this.$store.state.settings.sidebarLogo
+      // return this.$store.state.settings.sidebarLogo
+      return true
     },
     variables() {
       return variables
