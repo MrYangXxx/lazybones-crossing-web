@@ -41,6 +41,16 @@ export const constantRoutes = [
     component: () => import('@/views/registry/index'),
     hidden: true
   },
+  {
+    path: '/profile',
+    component: Layout,
+    children: [{
+      path: '/profile',
+      component: () => import('@/views/profile/index'),
+      name: 'profile'
+    }],
+    hidden: true
+  },
 
   {
     path: '/404',
