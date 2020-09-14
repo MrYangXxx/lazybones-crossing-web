@@ -1,11 +1,11 @@
 <template>
-  <el-form ref="form" style="margin-top: 20px;" :model="publishForm" :rules="rules">
+  <el-form ref="publishForm" style="margin-top: 20px;" :model="publishForm" :rules="rules">
     <el-form-item prop="content">
       <el-row>
         <el-col :span="9" style="text-align: right"><span style="font-size: 20px">拖延内容:</span></el-col>
         <el-col :span="12">
           <el-input
-            v-model="content"
+            v-model="publishForm.content"
             :autosize="{ minRows: 4, maxRows: 8}"
             label="拖延内容:"
             type="textarea"
@@ -28,16 +28,19 @@
             end-placeholder="结束日期"
           />
         </el-col>
-      </el-row></el-form-item>
+      </el-row>
+    </el-form-item>
     <el-row>
       <el-col :span="24" style="text-align: center">
         <el-button type="primary" style="width: 30%" @click="confirmPublish">发布</el-button>
       </el-col>
-    </el-row></el-form>
+    </el-row>
+  </el-form>
 </template>
 
 <script>
 import { addRecord } from '@/api/record'
+import store from '@/store'
 
 export default {
   name: 'Publish',
@@ -50,30 +53,18 @@ export default {
       },
       dateRange: '',
       rules: {
-        content: [{ required: true, message: '必填项', trigger: 'blur' }],
-        dateRange: [{ required: true, message: '必填项', trigger: 'blur' }]
+        content: [{ required: true, message: '必填项', trigger: 'blur' }]
       }
     }
   },
   methods: {
-    confirmPublish() {
-      this.$refs['publishForm'].validate(async(valid) => {
-        if (valid) {
-          const res = await addRecord()
-          if (res.code === 200) {
-            this.role = Object.assign({}, res.data)
-            const index = this.rolesList.findIndex(v => v.id === this.role.id)
-            this.rolesList.splice(index, 1, this.role)
-            this.dialogVisible = false
-            this.$notify({
-              title: 'Success',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
-          }
-        }
-      })
+    async confirmPublish() {
+      const userId = store.getters.userId
+      if (this.dateRange !== '') {
+        this.publishForm.beginTime = this.dateRange[0]
+        this.publishForm.endTime = this.dateRange[1]
+      }
+      const res = await addRecord({ userId, ...this.publishForm })
     }
   }
 }
