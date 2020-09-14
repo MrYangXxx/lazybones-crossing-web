@@ -1,74 +1,190 @@
 <template>
-  <el-card style="margin-bottom:20px;">
-    <div slot="header" class="clearfix">
-      <span>我的信息</span>
+  <div class="app-container">
+    <div v-if="user">
+      <el-row :gutter="20">
+
+        <el-col :span="6" :xs="24">
+          <el-card>
+            <div slot="header" class="clearfix">
+              <span>我的信息</span>
+              <el-button style="float: right;" @click="handleUpdate">修改</el-button>
+            </div>
+
+            <div class="user-profile">
+              <div class="box-center">
+                <pan-thumb :image="FileApi+user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
+                </pan-thumb>
+              </div>
+              <div class="box-center">
+                <div class="user-name text-center">{{ user.userName }}</div>
+              </div>
+            </div>
+
+            <div class="user-bio">
+              <div class="user-education user-bio-section">
+                <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>统计</span></div>
+                <div class="user-bio-section-body">
+                  <div class="text-muted">
+                    鸡蛋数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
+                    <span style="margin-left: 10px">{{user.egg}}</span>
+                  </div>
+                  <br/>
+                  <div class="text-muted">
+                    鲜花数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
+                    <span style="margin-left: 10px">{{user.flower}}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </el-card>
+        </el-col>
+
+        <el-col :span="18" :xs="24">
+          <el-card>
+            <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto;" infinite-scroll-distance="0">
+              <li v-for="record in recordList" class="infinite-list-item" style="list-style-type:none;padding-bottom: 20px">
+                <el-card style="height: 150px;width: 80%">
+                  <div>
+                    {{ record.content }}
+                  </div>
+                </el-card>
+              </li>
+            </ul>
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
 
-    <div class="user-profile">
-      <div class="box-center">
-        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-          <div>Hello</div>
-          {{ user.role }}
-        </pan-thumb>
+    <el-dialog title="修改用户信息" :visible.sync="dialogFormVisible">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="user"
+        label-position="center"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="昵称" prop="name">
+          <el-input v-model="user.userName" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="电话" prop="userName">
+          <el-input v-model="user.mobile" :disabled="user.mobile !=''" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="user.email" :disabled="user.email!=''" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="user.password" type="password" placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-select v-model="user.gender" class="filter-item" placeholder="请选择">
+            <el-option v-for="item in genderTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="出生日期" prop="birthDay">
+          <el-date-picker v-model="user.birthDay" type="date" placeholder="请选择" />
+        </el-form-item>
+        <el-form-item label="头像" prop="file">
+          <el-upload
+            class="avatar-uploader"
+            action="/api/file/upload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="user.avatar" :src="FileApi+user.avatar" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">
+          取消
+        </el-button>
+        <el-button type="primary" @click="modifyUser">
+          确认
+        </el-button>
       </div>
-      <div class="box-center">
-        <div class="user-name text-center">{{ user.name }}</div>
-        <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
-      </div>
-    </div>
-
-    <div class="user-bio">
-      <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>Education</span></div>
-        <div class="user-bio-section-body">
-          <div class="text-muted">
-            JS in Computer Science from the University of Technology
-          </div>
-        </div>
-      </div>
-
-      <div class="user-skills user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>Skills</span></div>
-        <div class="user-bio-section-body">
-          <div class="progress-item">
-            <span>Vue</span>
-            <el-progress :percentage="70" />
-          </div>
-          <div class="progress-item">
-            <span>JavaScript</span>
-            <el-progress :percentage="18" />
-          </div>
-          <div class="progress-item">
-            <span>Css</span>
-            <el-progress :percentage="12" />
-          </div>
-          <div class="progress-item">
-            <span>ESLint</span>
-            <el-progress :percentage="100" status="success" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </el-card>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
+
+import { myRecords } from '@/api/record'
+import { updateUser } from '@/api/user'
+import store from '@/store'
 import PanThumb from '@/components/PanThumb'
+
+const genderTypeOptions = [
+  { key: 0, display_name: '男' },
+  { key: 1, display_name: '女' }
+]
 
 export default {
   components: { PanThumb },
-  props: {
-    user: {
-      type: Object,
-      default: () => {
-        return {
-          name: '',
-          email: '',
-          avatar: '',
-          role: ''
-        }
-      }
+  name: 'Profile',
+  data() {
+    return {
+      dialogFormVisible: false,
+      genderTypeOptions,
+      user: {},
+      recordList: [],
+      FileApi: process.env.VUE_APP_FILE_API
     }
+  },
+  created() {
+    this.getRecords()
+    this.getUserInfo()
+  },
+  methods: {
+    load() {
+      if (this.count < 30) {
+        this.count += 2
+      }
+    },
+    async getUserInfo() {
+      const res = await store.dispatch('user/getInfo')
+      console.log(res)
+      this.user = res.userInfo
+    },
+    handleUpdate(row) {
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    async modifyUser() {
+      const res = await updateUser(this.user.id, this.user)
+      if (res.code === 200) {
+        this.dialogFormVisible = false
+        this.$notify({
+          title: 'Success',
+          message: '修改成功',
+          type: 'success',
+          duration: 2000
+        })
+      }
+    },
+    async getRecords() {
+      const res = await myRecords({ userId: store.getters.userId })
+      this.recordList = res.data.records
+    },
+    handleAvatarSuccess(res) {
+      this.user.avatar = res.data.fileName
+    },
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
+
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
   }
 }
 </script>
@@ -130,6 +246,30 @@ export default {
         font-weight: bold;
       }
     }
+  }
+
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
   }
 </style>
 
