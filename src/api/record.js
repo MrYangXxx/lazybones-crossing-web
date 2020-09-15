@@ -23,3 +23,19 @@ export function myRecords(data) {
     data
   })
 }
+
+export function sendFlower(data) {
+  return request({
+    url: '/record/flower',
+    method: 'post',
+    data
+  })
+}
+
+export function sendEgg(data) {
+  return request({
+    url: '/record/egg',
+    method: 'post',
+    data
+  })
+}
