@@ -25,13 +25,13 @@
                 <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>统计</span></div>
                 <div class="user-bio-section-body">
                   <div class="text-muted">
-                    鸡蛋数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
-                    <span style="margin-left: 10px">{{user.egg}}</span>
+                    鲜花数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
+                    <span style="margin-left: 10px">{{user.flower}}</span>
                   </div>
                   <br/>
                   <div class="text-muted">
-                    鲜花数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
-                    <span style="margin-left: 10px">{{user.flower}}</span>
+                    鸡蛋数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
+                    <span style="margin-left: 10px">{{user.egg}}</span>
                   </div>
                 </div>
               </div>
@@ -42,15 +42,32 @@
 
         <el-col :span="18" :xs="24">
           <el-card>
-            <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto;" infinite-scroll-distance="0">
-              <li v-for="record in recordList" class="infinite-list-item" style="list-style-type:none;padding-bottom: 20px">
-                <el-card style="height: 150px;width: 80%">
-                  <div>
-                    {{ record.content }}
-                  </div>
-                </el-card>
-              </li>
-            </ul>
+            <div v-for="record in recordList" class="user-activity">
+              <div class="post">
+                <div class="user-block">
+                  <img class="img-circle" :src="FileApi + user.avatar">
+                  <span class="username text-muted">{{user.userName}}</span>
+                  <span class="description">发布于:{{record.publishTime}}</span>
+                </div>
+                <p>
+                  {{record.content}}
+                </p>
+                <ul class="list-inline">
+                  <li>
+                    <span class="link-black text-sm">
+                      <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
+                      <span style="margin-left: 10px">{{record.flower}}</span>
+                    </span>
+                  </li>
+                  <li>
+                    <span class="link-black text-sm">
+                      <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
+                      <span style="margin-left: 10px">{{record.egg}}</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </el-card>
         </el-col>
       </el-row>
@@ -145,7 +162,6 @@ export default {
     },
     async getUserInfo() {
       const res = await store.dispatch('user/getInfo')
-      console.log(res)
       this.user = res.userInfo
     },
     handleUpdate(row) {
@@ -184,7 +200,7 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
-    },
+    }
   }
 }
 </script>
@@ -270,6 +286,88 @@ export default {
     width: 178px;
     height: 178px;
     display: block;
+  }
+
+  .user-activity {
+    .user-block {
+
+      .username,
+      .description {
+        display: block;
+        margin-left: 50px;
+        padding: 2px 0;
+      }
+
+      .username{
+        font-size: 16px;
+        color: #000;
+      }
+
+      :after {
+        clear: both;
+      }
+
+      .img-circle {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        float: left;
+      }
+
+      span {
+        font-weight: 500;
+        font-size: 12px;
+      }
+    }
+
+    .post {
+      font-size: 14px;
+      border-bottom: 1px solid #d2d6de;
+      margin-bottom: 15px;
+      color: #666;
+
+      .image {
+        width: 100%;
+        height: 100%;
+
+      }
+
+      .user-images {
+        padding-top: 20px;
+      }
+    }
+
+    .list-inline {
+      padding-left: 0;
+      margin-left: -5px;
+      list-style: none;
+      text-align: right;
+
+      li {
+        display: inline-block;
+        padding-right: 5px;
+        padding-left: 5px;
+        font-size: 13px;
+      }
+
+      .link-black {
+
+        &:hover,
+        &:focus {
+          color: #999;
+        }
+      }
+    }
+
+  }
+
+  .box-center {
+    margin: 0 auto;
+    display: table;
+  }
+
+  .text-muted {
+    color: #777;
   }
 </style>
 
