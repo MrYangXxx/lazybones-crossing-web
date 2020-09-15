@@ -65,6 +65,15 @@ export default {
         this.publishForm.endTime = this.dateRange[1]
       }
       const res = await addRecord({ userId, ...this.publishForm })
+      if (res.message === 'success') {
+        this.$notify({
+          title: 'Success',
+          message: '发布成功',
+          type: 'success',
+          duration: 2000
+        })
+        this.$refs['publishForm'].clearValidate()
+      }
     }
   }
 }
