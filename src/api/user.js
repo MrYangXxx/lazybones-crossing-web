@@ -23,16 +23,17 @@ export function updateUser(id, data) {
   })
 }
 
-export function deleteUser(id) {
-  return request({
-    url: `/user/id/${id}`,
-    method: 'delete'
-  })
-}
-
 export function registry(data) {
   return request({
     url: `/user/registry`,
+    method: 'post',
+    data
+  })
+}
+
+export function leaderboard(data) {
+  return request({
+    url: `/user/leaderboard`,
     method: 'post',
     data
   })
