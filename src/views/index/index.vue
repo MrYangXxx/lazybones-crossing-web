@@ -41,6 +41,7 @@
 <script>
 import { listRecords, sendEgg, sendFlower } from '@/api/record'
 import { parseTime } from '@/utils'
+import store from '@/store'
 
 export default {
   name: 'Index',
@@ -73,13 +74,13 @@ export default {
       this.recordList = res.data.records
     },
     async clickFlower(record, index) {
-      const res = await sendFlower({ 'id': record.id, 'userId': record.userId })
+      const res = await sendFlower({ 'id': record.id, 'userId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].flower += 1
       }
     },
     async clickEgg(record, index) {
-      const res = await sendEgg({ 'id': record.id, 'userId': record.userId })
+      const res = await sendEgg({ 'id': record.id, 'userId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].egg += 1
       }
