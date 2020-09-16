@@ -47,12 +47,17 @@
                 <div class="user-block">
                   <img class="img-circle" :src="FileApi + user.avatar">
                   <span class="username text-muted">{{user.userName}}</span>
-                  <span class="description">发布于:{{record.publishTime}}</span>
+                  <span class="description">发布于:{{record.publishTime | parseDateTime}}</span>
                 </div>
-                <p>
-                  {{record.content}}
+                <p style="padding-left: 4%;word-wrap: break-word;word-break: break-all;">
+                  {{ record.content }}
                 </p>
                 <ul class="list-inline">
+                  <li style="text-align: left">
+                    <span class="link-black text-sm">
+                      预计完成时间：{{ record.beginTime | parseTime}} 到 {{record.endTime | parseTime}}
+                    </span>
+                  </li>
                   <li>
                     <span class="link-black text-sm">
                       <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
@@ -132,6 +137,7 @@ import { myRecords } from '@/api/record'
 import { updateUser } from '@/api/user'
 import store from '@/store'
 import PanThumb from '@/components/PanThumb'
+import { parseTime } from '@/utils'
 
 const genderTypeOptions = [
   { key: 0, display_name: '男' },
@@ -141,6 +147,14 @@ const genderTypeOptions = [
 export default {
   components: { PanThumb },
   name: 'Profile',
+  filters: {
+    parseTime(time) {
+      return parseTime(time, '{y}-{m}-{d}')
+    },
+    parseDateTime(time) {
+      return parseTime(time,'{y}-{m}-{d} {h}:{i}:{s}')
+    }
+  },
   data() {
     return {
       dialogFormVisible: false,
