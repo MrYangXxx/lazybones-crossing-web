@@ -74,13 +74,13 @@ export default {
       this.recordList = res.data.records
     },
     async clickFlower(record, index) {
-      const res = await sendFlower({ 'id': record.id, 'userId': store.getters.userId })
+      const res = await sendFlower({ 'recordId': record.id,'userId':record.userId , 'ownerId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].flower += 1
       }
     },
     async clickEgg(record, index) {
-      const res = await sendEgg({ 'id': record.id, 'userId': store.getters.userId })
+      const res = await sendEgg({ 'recordId': record.id,'userId': record.userId, 'ownerId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].egg += 1
       }
