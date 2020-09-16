@@ -42,17 +42,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/profile',
-    component: Layout,
-    children: [{
-      path: '/profile',
-      component: () => import('@/views/profile/index'),
-      name: 'profile'
-    }],
-    hidden: true
-  },
-
-  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
@@ -70,6 +59,16 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/profile',
+    component: Layout,
+    children: [{
+      path: '/profile',
+      component: () => import('@/views/profile/index'),
+      name: 'profile'
+    }],
+    hidden: true
+  },
+  {
     path: '/publish',
     component: Layout,
     children: [{
@@ -77,6 +76,16 @@ export const constantRoutes = [
       component: () => import('@/views/publish/index'),
       name: 'publish',
       meta: { title: '发布', icon: 'dashboard' }
+    }]
+  },
+  {
+    path: '/leaderboard',
+    component: Layout,
+    children: [{
+      path: '/leaderboard',
+      component: () => import('@/views/leaderboard/index'),
+      name: 'leaderboard',
+      meta: { title: '排行榜', icon: 'dashboard' }
     }]
   },
 
