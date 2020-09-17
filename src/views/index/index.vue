@@ -8,14 +8,18 @@
               <img class="img-circle" :src="FileApi + record.userAvatar">
               <span class="username text-muted">{{ record.userName }}</span>
               <span class="description">发布于:{{ record.publishTime | parseDateTime }}</span>
+              <div style="text-align: right">
+                <span v-if="!record.complete" style="margin: 10px;font-size: 16px">未完成</span>
+                <span v-else style="margin: 10px;font-size: 16px">已完成</span>
+              </div>
             </div>
-            <p style="padding-left: 4%;word-wrap: break-word;word-break: break-all;">
+            <p style="padding-left: 4%;padding-right: 6%;word-wrap: break-word;word-break: break-all;">
               {{ record.content }}
             </p>
             <ul class="list-inline">
               <li style="text-align: left">
                 <span class="link-black text-sm">
-                  预计完成时间：{{ record.beginTime | parseTime}} 到 {{record.endTime | parseTime}}
+                  预计完成时间：{{ record.beginTime | parseTime }} 到 {{ record.endTime | parseTime }}
                 </span>
               </li>
               <li>
@@ -50,7 +54,7 @@ export default {
       return parseTime(time, '{y}-{m}-{d}')
     },
     parseDateTime(time) {
-      return parseTime(time,'{y}-{m}-{d} {h}:{i}:{s}')
+      return parseTime(time, '{y}-{m}-{d} {h}:{i}:{s}')
     }
   },
   data() {
@@ -74,13 +78,13 @@ export default {
       this.recordList = res.data.records
     },
     async clickFlower(record, index) {
-      const res = await sendFlower({ 'recordId': record.id,'userId':record.userId , 'ownerId': store.getters.userId })
+      const res = await sendFlower({ 'recordId': record.id, 'userId': record.userId, 'ownerId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].flower += 1
       }
     },
     async clickEgg(record, index) {
-      const res = await sendEgg({ 'recordId': record.id,'userId': record.userId, 'ownerId': store.getters.userId })
+      const res = await sendEgg({ 'recordId': record.id, 'userId': record.userId, 'ownerId': store.getters.userId })
       if (res.message === 'success') {
         this.recordList[index].egg += 1
       }
