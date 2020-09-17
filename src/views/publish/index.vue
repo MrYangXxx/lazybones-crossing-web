@@ -1,41 +1,32 @@
 <template>
-  <el-form ref="publishForm" style="margin-top: 20px;" :model="publishForm" :rules="rules">
-    <el-form-item prop="content">
+  <el-card class="box-card" style="margin-top:40px;">
+    <el-form ref="publishFormRef" style="margin-top: 20px;text-align: center" :model="publishForm">
+      <el-form-item label="拖延内容:" prop="content">
+        <el-input
+          v-model="publishForm.content"
+          :autosize="{ minRows: 4, maxRows: 8}"
+          label="拖延内容:"
+          type="textarea"
+          placeholder="请输入内容"
+          style="width: 50%;height: 100%"
+        />
+      </el-form-item>
+      <el-form-item label="预计完成时间:" prop="dateRange">
+        <el-date-picker
+          v-model="dateRange"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        />
+      </el-form-item>
       <el-row>
-        <el-col :span="9" style="text-align: right"><span style="font-size: 20px">拖延内容:</span></el-col>
-        <el-col :span="12">
-          <el-input
-            v-model="publishForm.content"
-            :autosize="{ minRows: 4, maxRows: 8}"
-            label="拖延内容:"
-            type="textarea"
-            placeholder="请输入内容"
-            style="width: 50%;height: 100%"
-          />
+        <el-col :span="24" style="text-align: center">
+          <el-button type="primary" style="width: 30%" @click="confirmPublish">发布</el-button>
         </el-col>
       </el-row>
-
-    </el-form-item>
-    <el-form-item prop="dateRange">
-      <el-row>
-        <el-col :span="9" style="text-align: right"><span style="font-size: 20px">目标完成时间段:</span></el-col>
-        <el-col :span="12">
-          <el-date-picker
-            v-model="dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </el-col>
-      </el-row>
-    </el-form-item>
-    <el-row>
-      <el-col :span="24" style="text-align: center">
-        <el-button type="primary" style="width: 30%" @click="confirmPublish">发布</el-button>
-      </el-col>
-    </el-row>
-  </el-form>
+    </el-form>
+  </el-card>
 </template>
 
 <script>
@@ -51,19 +42,19 @@ export default {
         beginTime: '',
         endTime: ''
       },
-      dateRange: '',
-      rules: {
-        content: [{ required: true, message: '必填项', trigger: 'blur' }]
-      }
+      dateRange: ''
     }
   },
   methods: {
     async confirmPublish() {
-      const userId = store.getters.userId
-      if (this.dateRange !== '') {
-        this.publishForm.beginTime = this.dateRange[0]
-        this.publishForm.endTime = this.dateRange[1]
+      if (this.dateRange === '' || this.publishForm.content === '') {
+        this.$message.error('内容和时间必填!')
+        return
       }
+
+      const userId = store.getters.userId
+      this.publishForm.beginTime = this.dateRange[0]
+      this.publishForm.endTime = this.dateRange[1]
       const res = await addRecord({ userId, ...this.publishForm })
       if (res.message === 'success') {
         this.$notify({
@@ -72,13 +63,23 @@ export default {
           type: 'success',
           duration: 2000
         })
-        this.$refs['publishForm'].clearValidate()
+        // 清空表单
+        this.publishForm = {
+          content: '',
+          beginTime: '',
+          endTime: ''
+        }
+        this.dateRange = ''
       }
     }
   }
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  .box-card {
+    width: 700px;
+    max-width: 100%;
+    margin: 20px auto;
+  }
 </style>
