@@ -12,22 +12,18 @@
         <div class="post">
           <div class="user-block">
             <img class="img-circle" :src="FileApi + user.avatar">
-            <span class="username text-muted">{{user.userName}}</span>
-          </div>
-          <ul class="list-inline">
-            <li>
-              <span class="link-black text-sm">
+            <span class="username text-muted">
+              <div style="display: inline-block;padding-top: 10px;">
+                {{ user.userName }}
+              </div>
+              <div style="text-align: right">
                 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
-                <span style="margin-left: 10px">{{user.flower}}</span>
-              </span>
-            </li>
-            <li>
-              <span class="link-black text-sm">
+                <span style="margin-left: 10px">{{ user.flower }}</span>
                 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
-                <span style="margin-left: 10px">{{user.egg}}</span>
-              </span>
-            </li>
-          </ul>
+                <span style="margin-left: 10px">{{ user.egg }}</span>
+              </div>
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -79,8 +75,7 @@ export default {
 
   .username,
   .description {
-    display: block;
-    margin-left: 50px;
+    margin-left: 20px;
     padding: 2px 0;
   }
 
@@ -97,6 +92,7 @@ export default {
     border-radius: 50%;
     width: 40px;
     height: 40px;
+    float: left;
   }
 
   span {
