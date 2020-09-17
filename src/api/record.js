@@ -39,3 +39,19 @@ export function sendEgg(data) {
     data
   })
 }
+
+export function completeRecord(data) {
+  return request({
+    url: '/record/modify',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteRecord(data) {
+  return request({
+    url: '/record/delete',
+    method: 'post',
+    data
+  })
+}
