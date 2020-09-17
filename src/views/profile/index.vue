@@ -12,8 +12,7 @@
 
             <div class="user-profile">
               <div class="box-center">
-                <pan-thumb :image="FileApi+user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-                </pan-thumb>
+                <pan-thumb :image="FileApi+user.avatar" :height="'100px'" :width="'100px'" :hoverable="false" />
               </div>
               <div class="box-center">
                 <div class="user-name text-center">{{ user.userName }}</div>
@@ -26,12 +25,12 @@
                 <div class="user-bio-section-body">
                   <div class="text-muted">
                     鲜花数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
-                    <span style="margin-left: 10px">{{user.flower}}</span>
+                    <span style="margin-left: 10px">{{ user.flower }}</span>
                   </div>
-                  <br/>
+                  <br>
                   <div class="text-muted">
                     鸡蛋数 <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
-                    <span style="margin-left: 10px">{{user.egg}}</span>
+                    <span style="margin-left: 10px">{{ user.egg }}</span>
                   </div>
                 </div>
               </div>
@@ -42,12 +41,22 @@
 
         <el-col :span="18" :xs="24">
           <el-card>
-            <div v-for="record in recordList" class="user-activity">
+            <div v-for="(record, index) in recordList" class="user-activity">
               <div class="post">
                 <div class="user-block">
                   <img class="img-circle" :src="FileApi + user.avatar">
-                  <span class="username text-muted">{{user.userName}}</span>
-                  <span class="description">发布于:{{record.publishTime | parseDateTime}}</span>
+                  <span class="username text-muted">{{ user.userName }}</span>
+                  <span class="description">发布于:{{ record.publishTime | parseDateTime }}</span>
+                  <div style="text-align: right">
+                    <el-button v-if="!record.complete" style="margin: 5px;" @click="complete(record,index)">完成</el-button>
+                    <span v-else style="margin: 10px;font-size: 16px">已完成</span>
+                    <el-popconfirm
+                      title="确定删除吗？"
+                      @onConfirm="removeRecord(record.id)"
+                    >
+                      <el-button slot="reference">删除</el-button>
+                    </el-popconfirm>
+                  </div>
                 </div>
                 <p style="padding-left: 4%;word-wrap: break-word;word-break: break-all;">
                   {{ record.content }}
@@ -55,19 +64,19 @@
                 <ul class="list-inline">
                   <li style="text-align: left">
                     <span class="link-black text-sm">
-                      预计完成时间：{{ record.beginTime | parseTime}} 到 {{record.endTime | parseTime}}
+                      预计完成时间：{{ record.beginTime | parseTime }} 到 {{ record.endTime | parseTime }}
                     </span>
                   </li>
                   <li>
                     <span class="link-black text-sm">
                       <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
-                      <span style="margin-left: 10px">{{record.flower}}</span>
+                      <span style="margin-left: 10px">{{ record.flower }}</span>
                     </span>
                   </li>
                   <li>
                     <span class="link-black text-sm">
                       <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
-                      <span style="margin-left: 10px">{{record.egg}}</span>
+                      <span style="margin-left: 10px">{{ record.egg }}</span>
                     </span>
                   </li>
                 </ul>
@@ -113,9 +122,10 @@
             action="/api/file/upload"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
+            :before-upload="beforeAvatarUpload"
+          >
             <img v-if="user.avatar" :src="FileApi+user.avatar" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
       </el-form>
@@ -133,7 +143,7 @@
 
 <script>
 
-import { myRecords } from '@/api/record'
+import { completeRecord, deleteRecord, myRecords } from '@/api/record'
 import { updateUser } from '@/api/user'
 import store from '@/store'
 import PanThumb from '@/components/PanThumb'
@@ -145,14 +155,14 @@ const genderTypeOptions = [
 ]
 
 export default {
-  components: { PanThumb },
   name: 'Profile',
+  components: { PanThumb },
   filters: {
     parseTime(time) {
       return parseTime(time, '{y}-{m}-{d}')
     },
     parseDateTime(time) {
-      return parseTime(time,'{y}-{m}-{d} {h}:{i}:{s}')
+      return parseTime(time, '{y}-{m}-{d} {h}:{i}:{s}')
     }
   },
   data() {
@@ -169,11 +179,6 @@ export default {
     this.getUserInfo()
   },
   methods: {
-    load() {
-      if (this.count < 30) {
-        this.count += 2
-      }
-    },
     async getUserInfo() {
       const res = await store.dispatch('user/getInfo')
       this.user = res.userInfo
@@ -200,6 +205,24 @@ export default {
       const res = await myRecords({ userId: store.getters.userId })
       this.recordList = res.data.records
     },
+    async complete(record, index) {
+      const res = await completeRecord({ id: record.id })
+      if (res.message === 'success') {
+        this.recordList[index].complete = true
+      }
+    },
+    async removeRecord(id) {
+      const res = await deleteRecord({ id })
+      if (res.message === 'success') {
+        this.$notify({
+          title: 'Success',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+      }
+      this.getRecords()
+    },
     handleAvatarSuccess(res) {
       this.user.avatar = res.data.fileName
     },
@@ -220,6 +243,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .card-class{
+
+  }
   .box-center {
     margin: 0 auto;
     display: table;
