@@ -40,49 +40,53 @@
         </el-col>
 
         <el-col :span="18" :xs="24">
-          <el-card>
-            <div v-for="(record, index) in recordList" class="user-activity">
-              <div class="post">
-                <div class="user-block">
-                  <img class="img-circle" :src="FileApi + user.avatar">
-                  <span class="username text-muted">{{ user.userName }}</span>
-                  <span class="description">发布于:{{ record.publishTime | parseDateTime }}</span>
-                  <div style="text-align: right">
-                    <el-button v-if="!record.complete" style="margin: 5px;" @click="complete(record,index)">完成</el-button>
-                    <span v-else style="margin: 10px;font-size: 16px">已完成</span>
-                    <el-popconfirm
-                      title="确定删除吗？"
-                      @onConfirm="removeRecord(record.id)"
-                    >
-                      <el-button slot="reference">删除</el-button>
-                    </el-popconfirm>
+          <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto;height: 850px" infinite-scroll-distance="20">
+            <li v-for="(record, index) in recordList" :key="record.id" class="infinite-list-item" style="list-style-type:none;padding-bottom: 20px">
+              <el-card style="width: 80%;overflow:auto">
+                <div class="user-activity">
+                  <div class="post">
+                    <div class="user-block">
+                      <img class="img-circle" :src="FileApi + user.avatar">
+                      <span class="username text-muted">{{ user.userName }}</span>
+                      <span class="description">发布于:{{ record.publishTime | parseDateTime }}</span>
+                      <div style="text-align: right">
+                        <el-button v-if="!record.complete" style="margin: 5px;" @click="complete(record,index)">完成</el-button>
+                        <span v-else style="margin: 10px;font-size: 16px">已完成</span>
+                        <el-popconfirm
+                          title="确定删除吗？"
+                          @onConfirm="removeRecord(record.id)"
+                        >
+                          <el-button slot="reference">删除</el-button>
+                        </el-popconfirm>
+                      </div>
+                    </div>
+                    <p style="padding-left: 4%;word-wrap: break-word;word-break: break-all;">
+                      {{ record.content }}
+                    </p>
+                    <ul class="list-inline">
+                      <li style="text-align: left">
+                        <span class="link-black text-sm">
+                          预计完成时间：{{ record.beginTime | parseTime }} 到 {{ record.endTime | parseTime }}
+                        </span>
+                      </li>
+                      <li>
+                        <span class="link-black text-sm">
+                          <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
+                          <span style="margin-left: 10px">{{ record.flower }}</span>
+                        </span>
+                      </li>
+                      <li>
+                        <span class="link-black text-sm">
+                          <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
+                          <span style="margin-left: 10px">{{ record.egg }}</span>
+                        </span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
-                <p style="padding-left: 4%;word-wrap: break-word;word-break: break-all;">
-                  {{ record.content }}
-                </p>
-                <ul class="list-inline">
-                  <li style="text-align: left">
-                    <span class="link-black text-sm">
-                      预计完成时间：{{ record.beginTime | parseTime }} 到 {{ record.endTime | parseTime }}
-                    </span>
-                  </li>
-                  <li>
-                    <span class="link-black text-sm">
-                      <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/flower.jpg" alt="flower">:
-                      <span style="margin-left: 10px">{{ record.flower }}</span>
-                    </span>
-                  </li>
-                  <li>
-                    <span class="link-black text-sm">
-                      <img style="width: 30px;height: 30px;display: inline" class="" src="@/assets/egg.jpg" alt="egg">:
-                      <span style="margin-left: 10px">{{ record.egg }}</span>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </el-card>
+              </el-card>
+            </li>
+          </ul>
         </el-col>
       </el-row>
     </div>
@@ -171,7 +175,8 @@ export default {
       genderTypeOptions,
       user: {},
       recordList: [],
-      FileApi: process.env.VUE_APP_FILE_API
+      FileApi: process.env.VUE_APP_FILE_API,
+      pagination: { page: 1, pageSize: 10, count: 0 }
     }
   },
   created() {
@@ -179,6 +184,13 @@ export default {
     this.getUserInfo()
   },
   methods: {
+    load() {
+      if (this.pagination.count < this.pagination.page * this.pagination.pageSize) {
+        return
+      }
+      this.pagination.page += 1
+      this.getRecords(this.pagination)
+    },
     async getUserInfo() {
       const res = await store.dispatch('user/getInfo')
       this.user = res.userInfo
@@ -201,9 +213,10 @@ export default {
         })
       }
     },
-    async getRecords() {
-      const res = await myRecords({ userId: store.getters.userId })
-      this.recordList = res.data.records
+    async getRecords(filter) {
+      const res = await myRecords({ userId: store.getters.userId, ...filter })
+      this.recordList = this.recordList.concat(res.data.records)
+      this.pagination = res.data.pagination
     },
     async complete(record, index) {
       const res = await completeRecord({ id: record.id })
@@ -362,7 +375,6 @@ export default {
 
     .post {
       font-size: 14px;
-      border-bottom: 1px solid #d2d6de;
       margin-bottom: 15px;
       color: #666;
 

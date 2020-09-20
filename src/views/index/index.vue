@@ -1,6 +1,6 @@
 <template>
-  <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto;" infinite-scroll-distance="0">
-    <li v-for="(record, index) in recordList" class="infinite-list-item" style="list-style-type:none;padding-bottom: 20px">
+  <ul v-infinite-scroll="load" class="infinite-list" style="overflow: auto;height: 888px" infinite-scroll-distance="20">
+    <li v-for="(record, index) in recordList" :key="record.id" class="infinite-list-item" style="list-style-type:none;padding-bottom: 20px">
       <el-card style="width: 80%;overflow:auto">
         <div class="user-activity">
           <div class="post">
@@ -61,7 +61,8 @@ export default {
     return {
       count: 10,
       recordList: [],
-      FileApi: process.env.VUE_APP_FILE_API
+      FileApi: process.env.VUE_APP_FILE_API,
+      pagination: { page: 1, pageSize: 10, count: 0 }
     }
   },
   created() {
@@ -69,13 +70,16 @@ export default {
   },
   methods: {
     load() {
-      if (this.count < 30) {
-        this.count += 2
+      if (this.pagination.count < this.pagination.page * this.pagination.pageSize) {
+        return
       }
+      this.pagination.page += 1
+      this.getRecords(this.pagination)
     },
-    async getRecords() {
-      const res = await listRecords({})
-      this.recordList = res.data.records
+    async getRecords(filter = {}) {
+      const res = await listRecords(filter)
+      this.recordList = this.recordList.concat(res.data.records)
+      this.pagination = res.data.pagination
     },
     async clickFlower(record, index) {
       const res = await sendFlower({ 'recordId': record.id, 'userId': record.userId, 'ownerId': store.getters.userId })
